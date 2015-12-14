@@ -73,6 +73,7 @@ public class PDFServlet extends HttpServlet {
 	}
 
 	private void generatePDFFlyingSaucer(ServletOutputStream outputStream, int lineCount, int columnCount) {
+		long startTime = System.currentTimeMillis();
 		String htmlContent = generateHTMLContent(lineCount, columnCount);
 		ITextRenderer renderer = new ITextRenderer();
 		renderer.setDocumentFromString(htmlContent);
@@ -82,16 +83,32 @@ public class PDFServlet extends HttpServlet {
 		} catch (com.lowagie.text.DocumentException e) {
 			e.printStackTrace();
 		}
+		System.out.println("FlyingSaucer PDF generation with " + lineCount + " took " + (System.currentTimeMillis() - startTime) + " milliseconds.");		
 	}
 	
-	private String generateHTMLContent(int lineCount, int columnCount) {
-		return "<html><body><h6>Table comes here</h6></body></html>";
+	private String generateHTMLContent(final int lineCount, final int columnCount) {
+		final StringBuilder html= new StringBuilder(10000);
+		String sqlAllEmployees = "SELECT e.emp_no,e.birth_date,e.first_name,e.last_name,e.gender,e.hire_date FROM employees.employees as e LIMIT " + lineCount;
+		html.append("<html><head><style>table {width:100%;border-collapse:collapse;}table td{border:1px solid red;}</style></head><body><table>");
+		this.db.query(sqlAllEmployees, new RowCallbackHandler() {
+			public void processRow(ResultSet rs) throws SQLException {
+				html.append("<tr>");
+				for (int i = 1; i <= columnCount; i++) {
+					html.append("<td>").append(rs.getString(i)).append("</td>");
+				}
+				html.append("</tr>");
+			}
+		});
+		html.append("</table></body></html>");
+		return html.toString();
 	}
 
 	private void generatePDFIText(OutputStream out, final int lineCount, final int columnCount) throws FileNotFoundException, DocumentException {
 		long startTime = System.currentTimeMillis();
+
 		String sqlAllEmployees = "SELECT e.emp_no,e.birth_date,e.first_name,e.last_name,e.gender,e.hire_date FROM employees.employees as e LIMIT " + lineCount;
 		final PdfPTable table = new PdfPTable(columnCount);
+		
 		this.db.query(sqlAllEmployees, new RowCallbackHandler() {
 			public void processRow(ResultSet rs) throws SQLException {
 				for (int i = 1; i <= columnCount; i++) {
@@ -105,6 +122,6 @@ public class PDFServlet extends HttpServlet {
 		document.open();
 		document.add(table);
 		document.close();
-		System.out.println("PDF generation with " + lineCount + " took " + (System.currentTimeMillis() - startTime) + " milliseconds.");
+		System.out.println("iText PDF generation with " + lineCount + " took " + (System.currentTimeMillis() - startTime) + " milliseconds.");
 	}
 }
