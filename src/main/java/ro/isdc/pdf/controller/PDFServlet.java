@@ -1,5 +1,6 @@
 package ro.isdc.pdf.controller;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -57,33 +58,59 @@ public class PDFServlet extends HttpServlet {
 		int lineCount = Integer.valueOf(request.getParameter("lineCount"));
 		int columnCount = Integer.valueOf(request.getParameter("columnCount"));
 		String mode = request.getParameter("mode");
-
-		// response.setContentType("application/pdf");
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-Disposition:", "attachment; filename=table-" + lineCount + "-lines-" + columnCount + "-cols.pdf");
+		ByteArrayOutputStream baos= new ByteArrayOutputStream(10000);
+		long startTime = System.currentTimeMillis();
 		try {
 			if ("i-text".equals(mode)) {
-				generatePDFIText(response.getOutputStream(), lineCount, columnCount);
+				baos=generatePDFIText(lineCount, columnCount);
 			} else if ("flying-saucer".equals(mode)) {
-				generatePDFFlyingSaucer(response.getOutputStream(), lineCount, columnCount);
+				generatePDFFlyingSaucer(lineCount, columnCount);
 			}
 		} catch (DocumentException e) {
 			e.printStackTrace();
 		}
+		long ellapsedTime = System.currentTimeMillis() - startTime;
+		System.out.println(mode + " PDF generation with " + (lineCount * columnCount) + " cells took " + ellapsedTime + " milliseconds.");
+		response.setContentType("application/pdf");
+		//response.setContentType("application/octet-stream");
+		response.setContentLength(baos.size());
+		response.setHeader("Content-Disposition:", "attachment; filename=pdf-" + (lineCount*columnCount) + "-cells-" + ellapsedTime + "-ms.pdf");
+		baos.writeTo(response.getOutputStream());
+	}
+	
+	private ByteArrayOutputStream generatePDFIText(final int lineCount, final int columnCount) throws FileNotFoundException, DocumentException {
+		ByteArrayOutputStream baos= new ByteArrayOutputStream(10000);
+		String sqlAllEmployees = "SELECT e.emp_no,e.birth_date,e.first_name,e.last_name,e.gender,e.hire_date FROM employees.employees as e LIMIT " + lineCount;
+		final PdfPTable table = new PdfPTable(columnCount);
+		
+		this.db.query(sqlAllEmployees, new RowCallbackHandler() {
+			public void processRow(ResultSet rs) throws SQLException {
+				for (int i = 1; i <= columnCount; i++) {
+					table.addCell(rs.getString(i));
+				}
+			}
+		});
+		// Create a PDF document and put the table in it:
+		Document document = new Document();
+		PdfWriter.getInstance(document, baos);
+		document.open();
+		document.add(table);
+		document.close();
+		return baos;
 	}
 
-	private void generatePDFFlyingSaucer(ServletOutputStream outputStream, int lineCount, int columnCount) {
-		long startTime = System.currentTimeMillis();
+	private ByteArrayOutputStream generatePDFFlyingSaucer(int lineCount, int columnCount) {
+		ByteArrayOutputStream baos= new ByteArrayOutputStream(10000);
 		String htmlContent = generateHTMLContent(lineCount, columnCount);
 		ITextRenderer renderer = new ITextRenderer();
 		renderer.setDocumentFromString(htmlContent);
 		renderer.layout();
 		try {
-			renderer.createPDF(outputStream);
+			renderer.createPDF(baos);
 		} catch (com.lowagie.text.DocumentException e) {
 			e.printStackTrace();
 		}
-		System.out.println("FlyingSaucer PDF generation with " + lineCount + " took " + (System.currentTimeMillis() - startTime) + " milliseconds.");		
+		return baos;
 	}
 	
 	private String generateHTMLContent(final int lineCount, final int columnCount) {
@@ -101,27 +128,5 @@ public class PDFServlet extends HttpServlet {
 		});
 		html.append("</table></body></html>");
 		return html.toString();
-	}
-
-	private void generatePDFIText(OutputStream out, final int lineCount, final int columnCount) throws FileNotFoundException, DocumentException {
-		long startTime = System.currentTimeMillis();
-
-		String sqlAllEmployees = "SELECT e.emp_no,e.birth_date,e.first_name,e.last_name,e.gender,e.hire_date FROM employees.employees as e LIMIT " + lineCount;
-		final PdfPTable table = new PdfPTable(columnCount);
-		
-		this.db.query(sqlAllEmployees, new RowCallbackHandler() {
-			public void processRow(ResultSet rs) throws SQLException {
-				for (int i = 1; i <= columnCount; i++) {
-					table.addCell(rs.getString(i));
-				}
-			}
-		});
-		// Create a PDF document and put the table in it:
-		Document document = new Document();
-		PdfWriter.getInstance(document, out);
-		document.open();
-		document.add(table);
-		document.close();
-		System.out.println("iText PDF generation with " + lineCount + " took " + (System.currentTimeMillis() - startTime) + " milliseconds.");
 	}
 }
