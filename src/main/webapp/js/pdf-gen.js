@@ -3,13 +3,13 @@
 	/*** onLoad: bind event handlers***/
 	$(function(){
 		$('.pdf-gen').on('click',onGeneratePDFClicked);
-		$('#txtLineCount').change(onLineCountChanged).focus().select();
-		$('#txtColumnCount').change(onColumnCountChanged);
+		$('.line-count').change(onLineCountChanged).focus().select();
+		$('.column-count').change(onColumnCountChanged);
 	});
 	/**On Change handler of lineCount text field.*/
 	function onLineCountChanged(e){
 		var MIN_LINES=1,
-			MAX_LINES=300000,
+			MAX_LINES=250000,
 			v=Number($(this).val());
 		
 		if(v < MIN_LINES){
@@ -36,8 +36,9 @@
 	
 	/*** On Click handler of PDF button. ***/
 	function onGeneratePDFClicked(e){
-		var lineCount=Math.min(Number($('#txtLineCount').val()),300000),
-			columnCount=Math.max(1,Math.min(Number($('#txtColumnCount').val()),6)),
+		var $btn=$(e.currentTarget),
+			lineCount=Math.min(Number($btn.closest('fieldset').find('.line-count').val() || 0),250000),
+			columnCount=Math.max(1,Math.min(Number($btn.closest('fieldset').find('.column-count').val() || 0),6)),
 			mode=$(this).data('mode');
 		
 		window.open("pdf?lineCount=" + lineCount + "&columnCount=" + columnCount + '&mode=' + mode);

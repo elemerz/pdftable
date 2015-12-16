@@ -1,0 +1,17 @@
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+table td {
+	border: 1px solid #888;
+}
+table th {
+	border:1px solid #888;
+	background-color: #ccc;
+}
+
+table .cell-empty{
+	border:none;
+	background-color: transparent;	
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1"/>
+<title>Private Bill report</title>
+<style th:text="${css}"></style>
+</head>
+<body>
+	<table>
+		<tbody th:each="employee : ${employees}">
+			<tr>
+				<th>First Name</th>
+				<th>Last Name</th>
+				<th>Birth Date</th>
+				<th>Gender</th>
+				<th class="cell-empty">&#160;</th>
+			</tr>
+			<tr>
+				<td th:text="${employee.firstName}">Zagoni</td>
+				<td th:text="${employee.lastName}">Elemer</td>
+				<td th:text="${employee.birthDate}">1972-02-14</td>
+				<td th:text="${employee.gender}">Male</td>
+				<td class="cell-empty">&#160;</td>
+			</tr>
+			<tr>
+				<th class="cell-empty">&#160;</th>
+				<th class="cell-empty">&#160;</th>
+				<th>Title From</th>
+				<th>Title To</th>
+				<th>Title</th>
+			</tr>
+			<tr th:each="role : ${employee.roles}">
+				<td class="cell-empty">&#160;</td>
+				<td class="cell-empty">&#160;</td>
+				<td th:text="${role.fromDate}">2004-09-13</td>
+				<td th:text="${role.toDate}">2016-09-13</td>
+				<td th:text="${role.title}">Developer</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>
