@@ -83,17 +83,19 @@ public class PDFBoxGenerator {
 		drawVerticalLines(pageStream, columnCount, crtLineY);
 		pageStream.close();
 		doc.save(baos);
+		doc.close();
 		return baos;
 	}
 	
 	/**Draw vertical separator lines between cells.
 	 * @throws IOException */
 	private void drawVerticalLines(PDPageContentStream pageStream, int columnCount,float crtLineY) throws IOException{
-		pageStream.drawLine(MARGIN, tableTopY, MARGIN, crtLineY);
+		pageStream.addLine(MARGIN, tableTopY, MARGIN, crtLineY);
 		for (int i = 0; i < columnCount; i++) {
 			float crtY = MARGIN + rightEdgePos[i];
-			pageStream.drawLine(crtY, tableTopY, crtY, crtLineY);
+			pageStream.addLine(crtY, tableTopY, crtY, crtLineY);
 		}
+		pageStream.closeAndStroke();
 	}
 	
 	/**

@@ -3,8 +3,6 @@ package ro.isdc.pdf.controller;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.sql.Driver;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -283,6 +281,6 @@ public class PDFServlet extends HttpServlet {
 	}
 
 	private String getfileAsString(String filePath) throws IOException {
-		return IOUtils.toString(getServletContext().getResourceAsStream(filePath), StandardCharsets.UTF_8);
+		return IOUtils.toString(getServletContext().getResourceAsStream(filePath), "UTF-8");
 	}
 }
