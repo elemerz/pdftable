@@ -27,11 +27,12 @@
 	<h3>Generate Big PDF table from MySql employees table using iText (Max. 250000 lines)</h3>
 	<fieldset>
 		<legend>Liear Table with n rows m columns</legend>
-		<input class="line-count mask-int" value="1000" maxlength="6" size="6"/>lines
-		<input class="column-count mask-pint" value="3" maxlength="1" size="1"/>columns
+		<input class="line-count mask-int" value="3" maxlength="6" size="6"/>lines
+		<input class="column-count mask-pint" value="6" maxlength="1" size="1"/>columns
 		<div>
 			<button class="pdf-gen" data-mode="i-text">Generate PDF Table with iText</button>
 			<button class="pdf-gen" data-mode="flying-saucer">Generate a PDF Table with Flying Saucer</button>
+			<button class="pdf-gen" data-mode="pdf-box">Generate a PDF Table with PDFBox</button>
 		</div>
 	</fieldset>	
 	

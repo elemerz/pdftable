@@ -41,7 +41,7 @@ public class PDFServlet extends HttpServlet {
 	/** Serialversion UID. */
 	private static final long serialVersionUID = -205214872476343901L;
 	private JdbcTemplate db = null;
-
+	
 	public void init() throws ServletException {
 		String dbUrl = this.getInitParameter("dbUrl");
 		String dbUser = this.getInitParameter("dbUser");
@@ -75,10 +75,14 @@ public class PDFServlet extends HttpServlet {
 				baos=generatePDFIText(lineCount, columnCount);
 			} else if ("flying-saucer".equals(mode)) {
 				baos=generatePDFFlyingSaucer(lineCount, columnCount);
+			} else if ("pdf-box".equals(mode)) {
+				baos=generatePDFPDFBox(lineCount, columnCount);
 			} else if ("i-text-tt".equals(mode)) {
 				baos=generatePDFITextTabInTab(lineCount);
 			} else if ("flying-saucer-tt".equals(mode)) {
 				baos=generatePDFFlyingSaucerTabInTab(lineCount,ctx);
+			} else if ("pdf-box-tt".equals(mode)) {
+				//baos=generatePDFPDFBoxTabInTab(lineCount,ctx);
 			}
 		} catch (DocumentException e) {
 			e.printStackTrace();
@@ -110,6 +114,29 @@ public class PDFServlet extends HttpServlet {
 		document.add(table);
 		document.close();
 		return baos;
+	}
+	
+	private ByteArrayOutputStream generatePDFPDFBox(int lineCount, final int columnCount) throws DocumentException, IOException {
+		ByteArrayOutputStream baos= new ByteArrayOutputStream(10000);
+		String sqlAllEmployees = "SELECT e.emp_no,e.birth_date,e.first_name,e.last_name,e.gender,e.hire_date FROM employees.employees as e LIMIT " + lineCount;
+		//final PdfPTable table = new PdfPTable(columnCount);
+		final List<String[]> tableContent =	new ArrayList<String[]>();	
+		this.db.query(sqlAllEmployees, new RowCallbackHandler() {
+			public void processRow(ResultSet rs) throws SQLException {
+				String[] row = new String[columnCount];
+				tableContent.add(row);
+				for (int i = 1; i <= columnCount; i++) {
+					row[i-1]=rs.getString(i);
+				}
+			}
+		});
+		return new PDFBoxGenerator().generateSimple(lineCount,columnCount,tableContent);
+		// Create a PDF document and put the table in it:
+		//Document document = new Document();
+		//PdfWriter.getInstance(document, baos);
+		//document.open();
+		//document.add(table);
+		//document.close();
 	}
 
 	private ByteArrayOutputStream generatePDFITextTabInTab(final int lineCount) throws FileNotFoundException, DocumentException {
