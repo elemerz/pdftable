@@ -15,7 +15,7 @@ import org.apache.pdfbox.util.Matrix;
 import ro.isdc.pdf.pdfbox.Column;
 import ro.isdc.pdf.pdfbox.ColumnAlignment;
 
-public class PDFBoxGenerator {
+public class PDFBoxGeneratorSimple {
 	private static Column[] columns = new Column[6];
 	private static float[] rightEdgePos = new float[6];
 	static {
@@ -45,12 +45,9 @@ public class PDFBoxGenerator {
 	private static final float ROW_HEIGHT = 15;
 	private static final float CELL_MARGIN = 2;
 
-	public ByteArrayOutputStream generateSimple(final int lineCount, final int columnCount, List<String[]> tableContent) throws IOException {
+	public ByteArrayOutputStream generateReport(final int lineCount, final int columnCount, List<String[]> tableContent) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-//		float tableHeight = IS_LANDSCAPE ? PAGE_SIZE.getWidth() - (2 * MARGIN) : PAGE_SIZE.getHeight() - (2 * MARGIN);
-		// Integer numberOfPages = new Double(Math.ceil(lineCount / rowsPerPage)).intValue();
-		
 		// Calculate center alignment for text in cell considering font height
 		final float startTextY = tableTopY - (ROW_HEIGHT / 2) - (TEXT_LINE_HEIGHT / 4);
 		PDDocument doc = new PDDocument();

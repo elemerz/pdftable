@@ -54,6 +54,13 @@
 					<li class="ico cons">A bit slow (10000 lines ~14 seconds)</li>
 				</ul>
 			</button>
+			<button class="pdf-gen" data-mode="pdf-box-tt">
+				<b>Generate Table-In-Table with PDFBox</b>
+				<ul>
+					<li class="ico pros">Fast</li>
+					<li class="ico cons">More custom code needed</li>
+				</ul>
+			</button>
 		</div>
 	</fieldset>	
 	

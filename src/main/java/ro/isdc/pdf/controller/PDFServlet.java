@@ -80,7 +80,7 @@ public class PDFServlet extends HttpServlet {
 			} else if ("flying-saucer-tt".equals(mode)) {
 				baos=generatePDFFlyingSaucerTabInTab(lineCount,ctx);
 			} else if ("pdf-box-tt".equals(mode)) {
-				//baos=generatePDFPDFBoxTabInTab(lineCount,ctx);
+				baos=generatePDFPDFBoxTabInTab(lineCount);
 			}
 		} catch (DocumentException e) {
 			e.printStackTrace();
@@ -117,7 +117,6 @@ public class PDFServlet extends HttpServlet {
 	private ByteArrayOutputStream generatePDFPDFBox(int lineCount, final int columnCount) throws DocumentException, IOException {
 		ByteArrayOutputStream baos= new ByteArrayOutputStream(10000);
 		String sqlAllEmployees = "SELECT e.emp_no,e.birth_date,e.first_name,e.last_name,e.gender,e.hire_date FROM employees.employees as e LIMIT " + lineCount;
-		//final PdfPTable table = new PdfPTable(columnCount);
 		final List<String[]> tableContent =	new ArrayList<String[]>();	
 		this.db.query(sqlAllEmployees, new RowCallbackHandler() {
 			public void processRow(ResultSet rs) throws SQLException {
@@ -128,15 +127,9 @@ public class PDFServlet extends HttpServlet {
 				}
 			}
 		});
-		return new PDFBoxGenerator().generateSimple(lineCount,columnCount,tableContent);
-		// Create a PDF document and put the table in it:
-		//Document document = new Document();
-		//PdfWriter.getInstance(document, baos);
-		//document.open();
-		//document.add(table);
-		//document.close();
+		return new PDFBoxGeneratorSimple().generateReport(lineCount,columnCount,tableContent);
 	}
-
+	
 	private ByteArrayOutputStream generatePDFITextTabInTab(final int lineCount) throws FileNotFoundException, DocumentException {
 		ByteArrayOutputStream baos= new ByteArrayOutputStream(10000);
 		String sqlAllEmployees ="SELECT t.title,e.emp_no, e.birth_date,e.first_name,e.last_name,e.gender,t.from_date, t.to_date FROM employees.employees As e INNER JOIN employees.titles as t ON e.emp_no=t.emp_no ORDER BY e.emp_no LIMIT " + lineCount;
@@ -206,6 +199,11 @@ public class PDFServlet extends HttpServlet {
 		document.add(table);
 		document.close();
 		return baos;
+	}
+	
+	private ByteArrayOutputStream generatePDFPDFBoxTabInTab(int lineCount) throws IOException {
+		List<Employee> employees = getEmployeesFromDB(lineCount);
+		return new PDFBoxGeneratorTabInTab().generateReport(employees,getServletContext());
 	}
 
 	private ByteArrayOutputStream generatePDFFlyingSaucer(int lineCount, int columnCount) throws IOException {
